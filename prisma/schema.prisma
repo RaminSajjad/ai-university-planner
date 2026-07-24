@@ -1,0 +1,134 @@
+// Prisma schema for AI University Planner
+// Docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id            String   @id @default(cuid())
+  name          String
+  email         String   @unique
+  password      String
+  university    String?
+  department    String?
+  semester      String?
+  cgpa          Float?
+  targetCgpa    Float?
+  image         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  courses       Course[]
+  assignments   Assignment[]
+  exams         Exam[]
+  studyPlans    StudyPlan[]
+  notifications Notification[]
+}
+
+model Course {
+  id            String   @id @default(cuid())
+  userId        String
+  courseName    String
+  courseCode    String
+  creditHours   Int
+  instructor    String?
+  semester      String?
+  currentGrade  String?
+  createdAt     DateTime @default(now())
+
+  user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  assignments   Assignment[]
+  exams         Exam[]
+
+  @@index([userId])
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum AssignmentStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+}
+
+model Assignment {
+  id              String            @id @default(cuid())
+  userId          String
+  courseId        String
+  title           String
+  description     String?
+  deadline        DateTime
+  difficulty      Difficulty        @default(MEDIUM)
+  estimatedHours  Float             @default(1)
+  status          AssignmentStatus  @default(PENDING)
+  notes           String?
+  createdAt       DateTime          @default(now())
+
+  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course          Course            @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([courseId])
+}
+
+model Exam {
+  id         String   @id @default(cuid())
+  userId     String
+  courseId   String
+  examType   String
+  date       DateTime
+  time       String
+  location   String?
+  notes      String?
+  createdAt  DateTime @default(now())
+
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course     Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([courseId])
+}
+
+model StudyPlan {
+  id           String   @id @default(cuid())
+  userId       String
+  plan         Json
+  generatedAt  DateTime @default(now())
+
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+enum NotificationType {
+  ASSIGNMENT_DUE
+  EXAM_SOON
+  TASK_COMPLETED
+  MISSED_DEADLINE
+  STUDY_PLAN_GENERATED
+}
+
+model Notification {
+  id         String            @id @default(cuid())
+  userId     String
+  title      String
+  message    String
+  type       NotificationType
+  isRead     Boolean           @default(false)
+  createdAt  DateTime          @default(now())
+
+  user       User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
