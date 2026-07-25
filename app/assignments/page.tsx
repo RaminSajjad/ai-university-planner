@@ -1,12 +1,20 @@
-export default function AssignmentsPage() {
+import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
+import { authOptions } from "@/lib/auth";
+import { getAssignments } from "@/actions/assignments";
+import { getCourses } from "@/actions/courses";
+import { AssignmentsClient } from "@/components/assignments/assignments-client";
+import { AppShell } from "@/components/layout/app-shell";
+
+export default async function AssignmentsPage() {
+  const session = await getServerSession(authOptions);
+  if (!session) redirect("/login");
+
+  const [assignments, courses] = await Promise.all([getAssignments(), getCourses()]);
+
   return (
-    <div className="p-6">
-      <h1 className="text-subheading font-semibold mb-4 capitalize">assignments</h1>
-      <div className="card">
-        <p className="text-slate-500 dark:text-slate-400">
-          assignments page — we'll build this out in a later phase.
-        </p>
-      </div>
-    </div>
+    <AppShell userName={session.user?.name}>
+      <AssignmentsClient initialAssignments={assignments} courses={courses} />
+    </AppShell>
   );
 }

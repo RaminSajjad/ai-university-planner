@@ -1,12 +1,19 @@
-export default function CoursesPage() {
+import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
+import { authOptions } from "@/lib/auth";
+import { getCourses } from "@/actions/courses";
+import { CoursesClient } from "@/components/courses/courses-client";
+import { AppShell } from "@/components/layout/app-shell";
+
+export default async function CoursesPage() {
+  const session = await getServerSession(authOptions);
+  if (!session) redirect("/login");
+
+  const courses = await getCourses();
+
   return (
-    <div className="p-6">
-      <h1 className="text-subheading font-semibold mb-4 capitalize">courses</h1>
-      <div className="card">
-        <p className="text-slate-500 dark:text-slate-400">
-          courses page — we'll build this out in a later phase.
-        </p>
-      </div>
-    </div>
+    <AppShell userName={session.user?.name}>
+      <CoursesClient initialCourses={courses} />
+    </AppShell>
   );
 }
