@@ -1,22 +1,21 @@
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
+import { generateAutoNotifications, getNotifications } from "@/actions/notifications";
+import { NotificationsClient } from "@/components/notifications/notifications-client";
 import { AppShell } from "@/components/layout/app-shell";
 
 export default async function NotificationsPage() {
   const session = await getServerSession(authOptions);
   if (!session) redirect("/login");
 
+  // Check for anything due soon and create notifications before loading the list
+  await generateAutoNotifications();
+  const notifications = await getNotifications();
+
   return (
     <AppShell userName={session.user?.name}>
-      <div className="p-6">
-        <h1 className="text-subheading font-semibold mb-4">Notifications</h1>
-        <div className="card">
-          <p className="text-slate-500 dark:text-slate-400">
-            Notifications will appear here — coming in Phase 5.
-          </p>
-        </div>
-      </div>
+      <NotificationsClient initialNotifications={notifications} />
     </AppShell>
   );
 }

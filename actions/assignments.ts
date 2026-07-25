@@ -97,10 +97,23 @@ export async function toggleAssignmentComplete(assignmentId: string, currentStat
     throw new Error("Assignment not found");
   }
 
+  const newStatus = currentStatus === "COMPLETED" ? "PENDING" : "COMPLETED";
+
   await prisma.assignment.update({
     where: { id: assignmentId },
-    data: { status: currentStatus === "COMPLETED" ? "PENDING" : "COMPLETED" },
+    data: { status: newStatus },
   });
+
+  if (newStatus === "COMPLETED") {
+    await prisma.notification.create({
+      data: {
+        userId,
+        title: `Completed Task: ${assignment.title}`,
+        message: `You marked "${assignment.title}" as complete. Nice work!`,
+        type: "TASK_COMPLETED",
+      },
+    });
+  }
 
   revalidatePath("/assignments");
 }

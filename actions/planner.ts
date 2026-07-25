@@ -86,6 +86,15 @@ export async function generatePlan(
       data: { userId, plan: plan as object },
     });
 
+    await prisma.notification.create({
+      data: {
+        userId,
+        title: "Study Plan Generated",
+        message: "Your AI study plan is ready. Check the Planner page to see it.",
+        type: "STUDY_PLAN_GENERATED",
+      },
+    });
+
     revalidatePath("/planner");
     return { success: true, message: "Study plan generated successfully", plan };
   } catch (error) {
