@@ -2,9 +2,11 @@
 
 import { revalidatePath } from "next/cache";
 import { getServerSession } from "next-auth";
+import bcrypt from "bcryptjs";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
+import { changePasswordSchema } from "@/lib/validations";
 
 const profileSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -59,4 +61,46 @@ export async function updateProfile(
 export async function getProfile() {
   const userId = await requireUserId();
   return prisma.user.findUnique({ where: { id: userId } });
+}
+
+export type ChangePasswordState = {
+  success: boolean;
+  message: string;
+  errors?: Record<string, string[]>;
+};
+
+export async function changePassword(
+  _prevState: ChangePasswordState,
+  formData: FormData
+): Promise<ChangePasswordState> {
+  const userId = await requireUserId();
+
+  const parsed = changePasswordSchema.safeParse({
+    currentPassword: formData.get("currentPassword"),
+    newPassword: formData.get("newPassword"),
+    confirmNewPassword: formData.get("confirmNewPassword"),
+  });
+
+  if (!parsed.success) {
+    return { success: false, message: "Please fix the errors below", errors: parsed.error.flatten().fieldErrors };
+  }
+
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user) {
+    return { success: false, message: "User not found" };
+  }
+
+  const isCurrentValid = await bcrypt.compare(parsed.data.currentPassword, user.password);
+  if (!isCurrentValid) {
+    return {
+      success: false,
+      message: "Current password is incorrect",
+      errors: { currentPassword: ["Current password is incorrect"] },
+    };
+  }
+
+  const hashedNewPassword = await bcrypt.hash(parsed.data.newPassword, 10);
+  await prisma.user.update({ where: { id: userId }, data: { password: hashedNewPassword } });
+
+  return { success: true, message: "Password changed successfully" };
 }

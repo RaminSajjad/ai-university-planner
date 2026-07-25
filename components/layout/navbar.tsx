@@ -1,13 +1,28 @@
 import Link from "next/link";
-import { Bell } from "lucide-react";
+import { Bell, Menu } from "lucide-react";
 import { LogoutButton } from "@/components/auth/logout-button";
+import { ThemeToggle } from "@/components/layout/theme-toggle";
 
-export function Navbar({ userName, unreadCount = 0 }: { userName?: string | null; unreadCount?: number }) {
+export function Navbar({
+  userName,
+  unreadCount = 0,
+  onMenuClick,
+}: {
+  userName?: string | null;
+  unreadCount?: number;
+  onMenuClick?: () => void;
+}) {
   return (
-    <header className="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-background-light dark:bg-background-dark sticky top-0 z-30">
-      <div className="md:hidden font-semibold">AI Uni Planner</div>
+    <header className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-background-light dark:bg-background-dark sticky top-0 z-30">
+      <div className="flex items-center gap-3">
+        <button onClick={onMenuClick} className="md:hidden text-slate-500 dark:text-slate-400" aria-label="Open menu">
+          <Menu className="w-6 h-6" />
+        </button>
+        <span className="md:hidden font-semibold">AI Uni Planner</span>
+      </div>
       <div className="hidden md:block" />
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3">
+        <ThemeToggle />
         <Link href="/notifications" className="relative text-slate-500 dark:text-slate-400 hover:text-primary transition">
           <Bell className="w-5 h-5" />
           {unreadCount > 0 && (
