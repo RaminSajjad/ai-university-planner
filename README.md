@@ -485,7 +485,10 @@ AI University Planner demonstrates a complete, end-to-end application of AI to a
 <div align="center">
 
 ### **Ramin Sajjad**
-BS Artificial Intelligence · Final Year Project
+BS Artificial Intelligence Student  
+National Textile University (NTU), Faisalabad
+
+This project was developed as the capstone project for the **AI Skill Bridge Program**, conducted under the **Higher Education Commission (HEC)**, **National Vocational & Technical Training Commission (NAVTTC)**, and the **Prime Minister's Youth Programme (PMYP)**.
 
 [![GitHub](https://img.shields.io/badge/GitHub-Repository-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/RaminSajjad/ai-university-planner)
 [![Live Demo](https://img.shields.io/badge/Live-Demo-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://ai-university-planner.vercel.app)
