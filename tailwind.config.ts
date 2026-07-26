@@ -31,6 +31,8 @@ const config: Config = {
       },
       fontFamily: {
         sans: ["var(--font-inter)", "sans-serif"],
+        serif: ["var(--font-fraunces)", "serif"],
+        mono: ["var(--font-jbmono)", "monospace"],
       },
       fontSize: {
         heading: "36px",
